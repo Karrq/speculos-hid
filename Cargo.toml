@@ -16,3 +16,5 @@ byteorder = "1.4.3"
 #dump bin
 hex = "0.4.3"
 hidapi = "2.4.1"
+clap = { version = "4.3.21", features = ["derive"] }
+humantime = "2.1.0"

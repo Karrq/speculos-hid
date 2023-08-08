@@ -7,7 +7,7 @@ use std::{
 use anyhow::{Context, Result};
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use isahc::{prelude::Configurable, AsyncReadResponseExt, Request, RequestExt};
-use tokio::sync::mpsc::{self};
+use tokio::sync::mpsc;
 
 use uhid_virt::{Bus, CreateParams, OutputEvent, UHIDDevice};
 
@@ -42,6 +42,7 @@ fn create_device() -> Result<UHIDDevice<File>> {
 pub struct SpeculosHID {
     addr: String,
     device: UHIDDevice<File>,
+    timeout: Duration,
 }
 
 impl SpeculosHID {
@@ -52,7 +53,16 @@ impl SpeculosHID {
         std::net::TcpStream::connect((host, port)).context("checking speculos connection")?;
         let addr = format!("http://{host}:{port}");
 
-        Ok(Self { addr, device })
+        Ok(Self {
+            addr,
+            device,
+            timeout: Duration::from_secs(60),
+        })
+    }
+
+    pub fn timeout(mut self, timeout: Duration) -> Self {
+        self.timeout = timeout;
+        self
     }
 
     /// Read an incoming message from the inner `UHIDDevice`
@@ -168,6 +178,7 @@ impl SpeculosHID {
         let (tx, rx_hid) = mpsc::unbounded_channel::<Vec<u8>>();
 
         let endpoint = format!("{}/apdu", self.addr);
+        let timeout = self.timeout;
         tokio::spawn(async move {
             //Received a message from the HID interface
             while let Some(msg) = rx.recv().await {
@@ -178,7 +189,7 @@ impl SpeculosHID {
 
                 // send as POST to /apdu
                 let req = Request::post(&endpoint)
-                    .timeout(Duration::from_secs(60))
+                    .timeout(timeout)
                     .body(json::stringify(msg))
                     .context("building apdu request")
                     .unwrap();

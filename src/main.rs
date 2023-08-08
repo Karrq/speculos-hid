@@ -1,14 +1,22 @@
 use std::time::Duration;
 
+use clap::Parser;
 use speculos_hid::SpeculosHID;
-use tokio::time::timeout;
+
+#[derive(Parser)]
+struct Args {
+    #[arg(short, value_parser = humantime::parse_duration, default_value = "60s")]
+    timeout: Duration,
+}
 
 #[tokio::main]
 async fn main() {
-    let dev = timeout(Duration::from_secs(5 * 60), async {
+    let args = Args::parse();
+
+    let dev = tokio::time::timeout(args.timeout, async {
         loop {
             match SpeculosHID::new("localhost", 8080) {
-                Ok(dev) => break dev,
+                Ok(dev) => break dev.timeout(args.timeout),
                 Err(_) => continue,
             }
         }
