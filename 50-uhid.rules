@@ -1,0 +1,2 @@
+# UHID devices
+KERNELS=="uhid", MODE="0660", TAG+="uaccess"
