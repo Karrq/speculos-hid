@@ -1,9 +1,20 @@
-use std::error::Error;
+use std::time::Duration;
 
-use speculos_hid::create_device;
+use speculos_hid::SpeculosHID;
+use tokio::time::timeout;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let _device = create_device()?;
+#[tokio::main]
+async fn main() {
+    let dev = timeout(Duration::from_secs(5 * 60), async {
+        loop {
+            match SpeculosHID::new("localhost", 8080) {
+                Ok(dev) => break dev,
+                Err(_) => continue,
+            }
+        }
+    })
+    .await
+    .expect("unable to create speculos HID device");
 
-    Ok(())
+    dev.drive().await.expect("unable to drive");
 }
