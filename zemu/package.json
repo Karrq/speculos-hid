@@ -1,0 +1,16 @@
+{
+    "name": "zemu",
+    "description": "description",
+    "version": "1.0.0",
+    "author": "Francesco Dainese <franci.dainese@gmail.com>",
+    "license": "MIT",
+    "scripts": {
+        "zemu": "ts-node index.ts"
+    },
+    "dependencies": {
+        "@zondax/zemu": "^0.44.0"
+    },
+    "devDependencies": {
+        "ts-node": "^10.9.1"
+    }
+}
