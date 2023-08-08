@@ -29,5 +29,5 @@ fn main() {
 
     let prod_id = dev_info.product_id();
 
-    println!("Ledger HID data:\nVendor ID: {LEDGER_VID}\nProduct ID: 0x{prod_id:02X}\nReport descriptor: 0x{rd}");
+    println!("Ledger HID data:\nVendor ID: 0x{LEDGER_VID:02X}\nProduct ID: 0x{prod_id:02X}\nReport descriptor: 0x{rd}");
 }
